@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import Colors from '../../constants/Colors';
+import CardUtils from '../../utils/CardUtils';
 import GameUtils from '../../utils/GameUtils';
 import PlayerHand from './PlayerHand';
 import GameMiddle from './GameMiddle';
@@ -18,43 +19,41 @@ export default class GameBoard extends React.Component {
     };
   }
 
+  cardUtils = new CardUtils();
+  gameUtils = new GameUtils();
+
   componentDidMount() {
-    let cards = [];
-    let hands = [];
-    let utils = new GameUtils();
-    // generate a deck of 52 cards
-    for (let i=0; i < 4; i++) {
-      for (let j = 2; j < 15; j++) {
-        cards.push({ rank: j, suit: i });
-      }
-    }
-    // shuffle cards and deal, sorted, to the 4 players
-    cards = utils.shuffle(cards);
-    for (let i=0; i < 4; i++) {
-      let hand = cards.slice(i*13,(i+1)*13);
-      hand.sort((a,b) => {
-        return a.suit*13+a.rank > b.suit*13+b.rank
-      });
-      hands.push(hand);
-    }
-    this.setState({ hands: hands });
+    this.setState({ hands: this.cardUtils.generateHands() });
   }
 
   handleCardPress(card) {
     if (this.state.turn !== 0 || this.state.submitted) return;
+    if (!this.gameUtils.isMoveLegal(card)) return;
 
     this.playCard(card, 0);
 
-    setTimeout(() => { this.playCard(this.state.hands[1][0], 1) }, 1000);
-    setTimeout(() => { this.playCard(this.state.hands[2][0], 2) }, 2000);
-    setTimeout(() => { this.playCard(this.state.hands[3][0], 3) }, 3000);
+    setTimeout(() => { this.makeComputerMove(1) }, 1000);
+    setTimeout(() => { this.makeComputerMove(2) }, 2000);
+    setTimeout(() => { this.makeComputerMove(3) }, 3000);
   }
 
-  playCard(card, player) {
-    this.setState({ submitted: true })
-    this.removeCardFromHand(card, player);
-    this.playCardToMiddle(card);
+  makeComputerMove(player) {
+    let hand = this.state.hands[player];
+    let legalMoves = hand.filter(card => {
+      return this.gameUtils.isMoveLegal(card, this.state.trick);
+    });
+    if (legalMoves.length === 0) {
+      // all cards are legal if player cannot follow suit
+      legalMoves = hand;
+    }
+    this.playCard(this.cardUtils.selectRandom(legalMoves));
+  }
 
+  playCard(card) {
+    let newHands = this.removeCardFromHand(card, this.state.hands);
+    this.setState({ submitted: true, hands: newHands });
+
+    this.playCardToMiddle(card);
 
     if (this.state.turn === 3) {
       setTimeout(() => {
@@ -66,11 +65,14 @@ export default class GameBoard extends React.Component {
     }
   }
 
-  removeCardFromHand(card, player) {
-    let hands = this.state.hands;
-    let index = hands[player].findIndex(c => { return c === card });
-    hands[player].splice(index,1);
-    this.setState({ hands: hands });
+  removeCardFromHand(card, hands) {
+    let player, index;
+    for (player = 0; player < 4; player++) {
+      index = hands[player].findIndex(c => { return c === card });
+      if (index !== -1) break;
+    }
+    hands[player].splice(index, 1);
+    return hands;
   }
 
   playCardToMiddle(card) {
