@@ -6,7 +6,7 @@ import Layout from '../../../constants/Layout';
 
 import GameCard from '../GameCard';
 
-export default class PlayerHand extends React.Component {
+export default class GameMiddleCard extends React.Component {
   constructor() {
     super()
     this.animatedValue = new Animated.Value(0);
@@ -18,23 +18,21 @@ export default class PlayerHand extends React.Component {
       this.animatedValue,
       {
         toValue: 1,
-        duration: 1000,
-        easing: Easing.elastic(1.3)
+        duration: 500,
+        easing: Easing.elastic(0.6)
       }
     ).start();
   }
 
   render() {
-    let playerHand = this.props.cards.map(card => {
-      return (
-        <GameCard
-          key={card.rank+card.suit*13}
-          card={card}
-          handleCardPress={() => this.props.handleCardPress(card)}
-          animate={() => this.animate()}
-        />
-      );
-    });
+    let card = this.props.card;
+    let direction = this.props.direction;
+
+    let bottom = direction === 0 ? -Layout.window.height/4 : 0;
+    let left = direction === 1 ? -Layout.window.width/4 : 0;
+    bottom = direction === 2 ? Layout.window.height/4 : bottom;
+    left = direction === 3 ? Layout.window.width/4 : left;
+
 
     return(
       <Animated.View
@@ -43,12 +41,21 @@ export default class PlayerHand extends React.Component {
           {
             bottom: this.animatedValue.interpolate({
               inputRange: [0,1],
-              outputRange: [-Layout.window.height/4, 0]
-            })
+              outputRange: [bottom, 0]
+            }),
+            left: this.animatedValue.interpolate({
+              inputRange: [0,1],
+              outputRange: [left, 0]
+            }),
           }
         ]}
       >
-        {playerHand}
+        <GameCard
+          key={card}
+          card={card}
+          handleCardPress={() => {}}
+          animate={() => this.animate()}
+        />
       </Animated.View>
     );
   }
@@ -56,11 +63,7 @@ export default class PlayerHand extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    bottom: 0,
-    flexDirection: 'row',
-    width: '100%',
-    height: '25%',
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },

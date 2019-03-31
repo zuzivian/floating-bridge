@@ -24,6 +24,7 @@
     ],
     "ios": {
       "supportsTablet": true
-    }
+    },
+    "description": "Floating Bridge App. Built with Expo."
   }
 }

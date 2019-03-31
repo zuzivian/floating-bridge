@@ -36,8 +36,8 @@ export default class App extends React.Component {
 
     return (
       <View style={styles.container}>
-        {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-        <GameBoard />
+        {Platform.OS === 'ios' && <StatusBar hidden={true} />}
+        <GameBoard testID="GameBoard" />
         {this._maybeRenderLoadingImage()}
       </View>
     );
