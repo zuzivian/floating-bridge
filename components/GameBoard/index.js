@@ -15,6 +15,7 @@ export default class GameBoard extends React.Component {
       hands: null,
       turn: 0,
       submitted: false,
+      lastWinner: 0,
       trick: []
     };
   }
@@ -28,24 +29,22 @@ export default class GameBoard extends React.Component {
 
   handleCardPress(card) {
     if (this.state.turn !== 0 || this.state.submitted) return;
-    if (!this.gameUtils.isMoveLegal(card)) return;
+    if (!this.gameUtils.isMoveLegal(card, this.state.trick, this.state.hands[0])) return;
 
     this.playCard(card, 0);
 
-    setTimeout(() => { this.makeComputerMove(1) }, 1000);
-    setTimeout(() => { this.makeComputerMove(2) }, 2000);
-    setTimeout(() => { this.makeComputerMove(3) }, 3000);
+    for (let i=1; i<=4-this.state.trick.length; i++) {
+      setTimeout(() => { this.makeComputerMove(i) }, i*1000);
+    }
   }
 
   makeComputerMove(player) {
     let hand = this.state.hands[player];
+    if (!hand.length) return;
+
     let legalMoves = hand.filter(card => {
-      return this.gameUtils.isMoveLegal(card, this.state.trick);
+      return this.gameUtils.isMoveLegal(card, this.state.trick, hand);
     });
-    if (legalMoves.length === 0) {
-      // all cards are legal if player cannot follow suit
-      legalMoves = hand;
-    }
     this.playCard(this.cardUtils.selectRandom(legalMoves));
   }
 
@@ -55,10 +54,21 @@ export default class GameBoard extends React.Component {
 
     this.playCardToMiddle(card);
 
-    if (this.state.turn === 3) {
+    if (this.state.trick.length === 4) {
+
+      let trickWinner = this.gameUtils.getTrickWinner(this.state.trick);
+      let nextTurn = (this.state.lastWinner+trickWinner)%4;
+
       setTimeout(() => {
-        this.setState({ trick: [], turn: (this.state.turn+1)%4, submitted: false });
+        this.setState({ trick: [], turn: nextTurn, submitted: false, lastWinner: nextTurn });
       }, 1000);
+
+      let delay = 2000;
+      for (let i=nextTurn; i<4; i++) {
+        if (i === 0) break;
+        setTimeout(() => { this.makeComputerMove(i) }, delay);
+        delay += 1000;
+      }
     }
     else {
       this.setState({ turn: (this.state.turn+1)%4, submitted: false });
@@ -83,15 +93,9 @@ export default class GameBoard extends React.Component {
 
   render() {
 
-    let gameTrick = (
-      <GameMiddle
-        cards={this.state.trick}
-      />
-    );
-
     let playerHand = this.state.hands ?
       <PlayerHand
-        cards={this.state.hands[0]}
+        cards={this.state.hands ? this.state.hands[0] : null}
         testID="PlayerHand"
         handleCardPress={(card) => this.handleCardPress(card)}
       />
@@ -102,7 +106,10 @@ export default class GameBoard extends React.Component {
       <View
         style={styles.container}
       >
-        {gameTrick}
+        <GameMiddle
+          cards={this.state.trick}
+          lastWinner={this.state.lastWinner}
+        />
         {playerHand}
       </View>
     );

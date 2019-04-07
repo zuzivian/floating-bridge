@@ -15,9 +15,9 @@ export default class GameMiddle extends React.Component {
   renderCard(card, direction) {
     return (
       <GameMiddleCard
-        key={this.props.cards[0]}
-        card={this.props.cards[0]}
-        direction={0}
+        key={card}
+        card={card}
+        direction={direction}
       />
     );
   }
@@ -26,39 +26,25 @@ export default class GameMiddle extends React.Component {
 
     if (!this.props.cards || !this.props.cards.length) return null;
 
+    let offset = 4-this.props.lastWinner;
+
     return(
       <View
         style={styles.container}
       >
         <View style={styles.rowContainer}>
-          <GameMiddleCard
-            key={2}
-            card={this.props.cards[2]}
-            direction={2}
-          />
+          {this.renderCard(this.props.cards[(offset+2)%4], 2)}
         </View>
         <View style={styles.rowContainer}>
           <View style={styles.columnContainer}>
-            <GameMiddleCard
-              key={1}
-              card={this.props.cards[1]}
-              direction={1}
-            />
+            {this.renderCard(this.props.cards[(offset+1)%4], 1)}
           </View>
           <View style={styles.columnContainer}>
-            <GameMiddleCard
-              key={3}
-              card={this.props.cards[3]}
-              direction={3}
-            />
+          {this.renderCard(this.props.cards[(offset+3)%4], 3)}
           </View>
         </View>
         <View style={styles.rowContainer}>
-          <GameMiddleCard
-            key={0}
-            card={this.props.cards[0]}
-            direction={0}
-          />
+          {this.renderCard(this.props.cards[(offset+0)%4], 0)}
         </View>
       </View>
     );
