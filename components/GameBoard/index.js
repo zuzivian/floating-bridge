@@ -4,8 +4,11 @@ import { StyleSheet, Text, View } from 'react-native';
 import Colors from '../../constants/Colors';
 import CardUtils from '../../utils/CardUtils';
 import GameUtils from '../../utils/GameUtils';
+
 import PlayerHand from './PlayerHand';
 import GameMiddle from './GameMiddle';
+import GameLeft from './GameLeft';
+import GameRight from './GameRight';
 
 
 export default class GameBoard extends React.Component {
@@ -71,7 +74,9 @@ export default class GameBoard extends React.Component {
       }
     }
     else {
-      this.setState({ turn: (this.state.turn+1)%4, submitted: false });
+      setTimeout(() => {
+        this.setState({ turn: (this.state.turn+1)%4, submitted: false })
+      }, 500);
     }
   }
 
@@ -106,11 +111,26 @@ export default class GameBoard extends React.Component {
       <View
         style={styles.container}
       >
-        <GameMiddle
-          cards={this.state.trick}
-          lastWinner={this.state.lastWinner}
-        />
-        {playerHand}
+        <View style={styles.topContainer}>
+          <View style={{ flex: 1 }}>
+            <GameLeft
+            />
+          </View>
+          <View style={{ flex: 2 }}>
+            <GameMiddle
+              cards={this.state.trick}
+              lastWinner={this.state.lastWinner}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <GameRight
+              turn={this.state.turn}
+            />
+          </View>
+        </View>
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          {playerHand}
+        </View>
       </View>
     );
   }
@@ -126,4 +146,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  topContainer: {
+    flex: 3,
+    flexDirection: 'row',
+    alignItems: 'center'
+  }
 });

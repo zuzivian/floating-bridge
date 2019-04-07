@@ -60,8 +60,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     flexDirection: 'row',
     width: '100%',
-    height: '25%',
+    height: '100%',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
 });

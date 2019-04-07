@@ -53,11 +53,9 @@ export default class GameMiddle extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    bottom: "35%",
     flexDirection: 'column',
-    width: '50%',
-    height: '50%',
+    width: '100%',
+    height: '70%',
     justifyContent: 'center',
   },
   rowContainer: {
