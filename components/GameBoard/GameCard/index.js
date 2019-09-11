@@ -56,7 +56,7 @@ export default class GameCard extends React.Component {
         onPress={() => this.props.handleCardPress()}
       >
         <View style={styles.rankContainer}>
-          <Text style={[suitColor, { fontFamily: 'rubik-bold', fontSize: Math.min(0.3*height, 0.9*width) }]}>
+          <Text style={[suitColor, { fontFamily: 'rubik-bold', fontSize: Math.min(0.25*height, 0.9*width) }]}>
             {rank}
           </Text>
         </View>
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     backgroundColor: Colors.theme1a,
     borderColor: Colors.theme1e,
-    borderRadius: 10,
+    borderRadius: Layout.window.width/120,
   },
   rankContainer: {
     flex: 2,
