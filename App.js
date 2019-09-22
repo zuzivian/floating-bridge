@@ -108,10 +108,6 @@ export default class App extends React.Component {
         require('./assets/suits/diamond.png'),
         require('./assets/suits/heart.png'),
         require('./assets/suits/spade.png'),
-        require('./assets/turns/up.png'),
-        require('./assets/turns/down.png'),
-        require('./assets/turns/left.png'),
-        require('./assets/turns/right.png')
       ]),
       Font.loadAsync({
         'rubik-regular': require('./assets/fonts/Rubik-Regular.ttf'),

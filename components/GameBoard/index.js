@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, SafeAreaView, Text, View } from 'react-native';
 
 import Colors from '../../constants/Colors';
 import CardUtils from '../../utils/CardUtils';
@@ -7,8 +7,8 @@ import GameUtils from '../../utils/GameUtils';
 
 import PlayerHand from './PlayerHand';
 import GameMiddle from './GameMiddle';
-import GameLeft from './GameLeft';
-import GameRight from './GameRight';
+import PlayerScores from './PlayerScores';
+import GameState from './GameState';
 
 
 export default class GameBoard extends React.Component {
@@ -16,10 +16,13 @@ export default class GameBoard extends React.Component {
     super()
     this.state = {
       hands: null,
+      partnerCard: null,
+      partner: 2, // temp
       turn: 0,
       submitted: false,
       lastWinner: 0,
-      trick: []
+      trick: [],
+      tricks: [],
     };
   }
 
@@ -27,7 +30,11 @@ export default class GameBoard extends React.Component {
   gameUtils = new GameUtils();
 
   componentDidMount() {
-    this.setState({ hands: this.cardUtils.generateHands() });
+    let hands = this.cardUtils.generateHands();
+    this.setState({
+      hands: hands,
+      partnerCard: hands[2][12], // placeholder
+    });
   }
 
   handleCardPress(card) {
@@ -61,9 +68,11 @@ export default class GameBoard extends React.Component {
 
       let trickWinner = this.gameUtils.getTrickWinner(this.state.trick);
       let nextTurn = (this.state.lastWinner+trickWinner)%4;
+      let tricks = this.state.tricks;
+      tricks.push(this.state.trick);
 
       setTimeout(() => {
-        this.setState({ trick: [], turn: nextTurn, submitted: false, lastWinner: nextTurn });
+        this.setState({ tricks: tricks, trick: [], turn: nextTurn, submitted: false, lastWinner: nextTurn });
       }, 1000);
 
       let delay = 2000;
@@ -108,12 +117,14 @@ export default class GameBoard extends React.Component {
       null;
 
     return(
-      <View
+      <SafeAreaView
         style={styles.container}
       >
         <View style={styles.topContainer}>
           <View style={{ flex: 1 }}>
-            <GameLeft
+            <PlayerScores
+              turn={this.state.turn}
+              scores={this.gameUtils.getTrickWinners(this.state.tricks)}
             />
           </View>
           <View style={{ flex: 2 }}>
@@ -123,15 +134,16 @@ export default class GameBoard extends React.Component {
             />
           </View>
           <View style={{ flex: 1 }}>
-            <GameRight
+            <GameState
               turn={this.state.turn}
+              partnerCard={this.state.partnerCard}
             />
           </View>
         </View>
         <View style={{ flex: 1, alignItems: 'center' }}>
           {playerHand}
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 }
@@ -149,6 +161,6 @@ const styles = StyleSheet.create({
   topContainer: {
     flex: 3,
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
   }
 });

@@ -8,6 +8,7 @@ export default class GameUtils {
   }
 
   getTrickWinner(trick) {
+    // works for no trump only
     let winningIndex = 0;
     let winningCard = trick[0];
     for (let i=1; i<trick.length; i++) {
@@ -17,6 +18,15 @@ export default class GameUtils {
       }
     }
     return winningIndex;
+  }
+
+  getTrickWinners(tricks) {
+    scores = [0,0,0,0];
+    for (let i=0; i< tricks.length; i++) {
+      let winner = this.getTrickWinner(tricks[i]);
+      scores[winner]++;
+    }
+    return scores;
   }
 
   hasSuitInHand(card, hand) {
