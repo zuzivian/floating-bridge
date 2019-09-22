@@ -42,9 +42,21 @@ export default class CardUtils {
     return array;
   }
 
+  // selects a random card from a list of cards
   selectRandom(hand) {
     let index = Math.floor(Math.random()*hand.length);
     return hand[index];
+  }
+
+  // removes the specified card from a listof listof cards
+  removeCardFromHand(card, hands) {
+    let player, index;
+    for (player = 0; player < hands.length; player++) {
+      index = hands[player].findIndex(c => { return c === card });
+      if (index !== -1) break;
+    }
+    hands[player].splice(index, 1);
+    return hands;
   }
 
 }

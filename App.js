@@ -1,6 +1,10 @@
 import React from 'react';
 import { Animated, Image, Platform, StatusBar, StyleSheet, Text, View } from 'react-native';
-import { Asset, Font, Icon, SplashScreen } from 'expo';
+import { SplashScreen } from 'expo';
+
+import * as Icon from '@expo/vector-icons';
+import * as Font from 'expo-font';
+import { Asset } from 'expo-asset';
 
 import Colors from './constants/Colors';
 import GameBoard from './components/GameBoard';

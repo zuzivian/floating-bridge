@@ -25,6 +25,9 @@ export default class PlayerHand extends React.Component {
   }
 
   render() {
+
+    if (!this.props.cards) return null;
+
     let playerHand = this.props.cards.map(card => {
       return (
         <GameCard

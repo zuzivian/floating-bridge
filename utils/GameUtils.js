@@ -21,9 +21,12 @@ export default class GameUtils {
   }
 
   getTrickWinners(tricks) {
-    scores = [0,0,0,0];
+    let scores = [0,0,0,0];
+    let prevWinner = 0;
     for (let i=0; i< tricks.length; i++) {
-      let winner = this.getTrickWinner(tricks[i]);
+      let trickWin = this.getTrickWinner(tricks[i]);
+      let winner = (trickWin + prevWinner) % 4;
+      prevWinner = winner;
       scores[winner]++;
     }
     return scores;

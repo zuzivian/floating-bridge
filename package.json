@@ -8,11 +8,15 @@
     "eject": "expo eject"
   },
   "dependencies": {
-    "expo": "^32.0.0",
+    "@expo/vector-icons": "^10.0.5",
+    "expo": "^35.0.0",
+    "expo-asset": "^7.0.0",
+    "expo-font": "^7.0.0",
     "jest": "^24.5.0",
     "jest-expo": "^32.0.0",
-    "react": "16.5.0",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
+    "react": "16.8.3",
+    "react-native": "https://github.com/expo/react-native/archive/sdk-35.0.0.tar.gz",
+    "react-native-elements": "^1.2.1",
     "react-native-testing-library": "^1.6.1",
     "react-test-renderer": "^16.8.4"
   },

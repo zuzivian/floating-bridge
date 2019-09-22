@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, SafeAreaView, Text, View } from 'react-native';
 
 import Colors from '../../constants/Colors';
+import Texts from '../../constants/Texts';
 import CardUtils from '../../utils/CardUtils';
 import GameUtils from '../../utils/GameUtils';
 
@@ -9,12 +10,15 @@ import PlayerHand from './PlayerHand';
 import GameMiddle from './GameMiddle';
 import PlayerScores from './PlayerScores';
 import GameState from './GameState';
-
+import GameOverlay from '../GameOverlay';
 
 export default class GameBoard extends React.Component {
   constructor() {
     super()
     this.state = {
+      overlayShow: true,
+      overlayText: Texts.instructions,
+      overlayButtonText: Texts.startGame,
       hands: null,
       partnerCard: null,
       partner: 2, // temp
@@ -29,12 +33,39 @@ export default class GameBoard extends React.Component {
   cardUtils = new CardUtils();
   gameUtils = new GameUtils();
 
-  componentDidMount() {
+  generateGame() {
     let hands = this.cardUtils.generateHands();
     this.setState({
       hands: hands,
       partnerCard: hands[2][12], // placeholder
     });
+  }
+
+  resetGame() {
+    this.setState({
+      partner: 2, // temp
+      turn: 0,
+      submitted: false,
+      lastWinner: 0,
+      trick: [],
+      tricks: [],
+    });
+    this.generateGame();
+  }
+
+  endGame() {
+    this.setState({
+      overlayShow: true,
+      overlayText: 'The Game is Over!',
+      overlayButtonText: Texts.restartGame,
+    });
+  }
+
+  onPressOverlayButton() {
+    this.setState( {overlayShow: false} );
+    // decide what action to do
+    if (!this.state.hands) this.generateGame();
+    else this.resetGame();
   }
 
   handleCardPress(card) {
@@ -59,27 +90,17 @@ export default class GameBoard extends React.Component {
   }
 
   playCard(card) {
-    let newHands = this.removeCardFromHand(card, this.state.hands);
+    let newHands = this.cardUtils.removeCardFromHand(card, this.state.hands);
     this.setState({ submitted: true, hands: newHands });
 
-    this.playCardToMiddle(card);
+    let trick = this.state.trick;
+    trick.push(card);
+    this.setState({ trick: trick });
 
     if (this.state.trick.length === 4) {
-
-      let trickWinner = this.gameUtils.getTrickWinner(this.state.trick);
-      let nextTurn = (this.state.lastWinner+trickWinner)%4;
-      let tricks = this.state.tricks;
-      tricks.push(this.state.trick);
-
-      setTimeout(() => {
-        this.setState({ tricks: tricks, trick: [], turn: nextTurn, submitted: false, lastWinner: nextTurn });
-      }, 1000);
-
-      let delay = 2000;
-      for (let i=nextTurn; i<4; i++) {
-        if (i === 0) break;
-        setTimeout(() => { this.makeComputerMove(i) }, delay);
-        delay += 1000;
+      this.startNextTrick();
+      if (this.state.tricks.length === 13) {
+        setTimeout(() => { this.endGame() }, 2000);
       }
     }
     else {
@@ -89,37 +110,36 @@ export default class GameBoard extends React.Component {
     }
   }
 
-  removeCardFromHand(card, hands) {
-    let player, index;
-    for (player = 0; player < 4; player++) {
-      index = hands[player].findIndex(c => { return c === card });
-      if (index !== -1) break;
-    }
-    hands[player].splice(index, 1);
-    return hands;
-  }
+  startNextTrick() {
+    let trickWinner = this.gameUtils.getTrickWinner(this.state.trick);
+    let nextTurn = (this.state.lastWinner+trickWinner)%4;
+    let tricks = this.state.tricks;
+    tricks.push(this.state.trick);
 
-  playCardToMiddle(card) {
-    let trick = this.state.trick;
-    trick.push(card);
-    this.setState({ trick: trick });
+    setTimeout(() => {
+      this.setState({ tricks: tricks, trick: [], turn: nextTurn, submitted: false, lastWinner: nextTurn });
+    }, 1000);
+
+    let delay = 2000;
+    for (let i=nextTurn; i<4; i++) {
+      if (i === 0) break;
+      setTimeout(() => { this.makeComputerMove(i) }, delay);
+      delay += 1000;
+    }
   }
 
   render() {
-
-    let playerHand = this.state.hands ?
-      <PlayerHand
-        cards={this.state.hands ? this.state.hands[0] : null}
-        testID="PlayerHand"
-        handleCardPress={(card) => this.handleCardPress(card)}
-      />
-      :
-      null;
 
     return(
       <SafeAreaView
         style={styles.container}
       >
+        <GameOverlay
+          show={this.state.overlayShow}
+          text={this.state.overlayText}
+          buttonText={this.state.overlayButtonText}
+          onPress={() => this.onPressOverlayButton()}
+        />
         <View style={styles.topContainer}>
           <View style={{ flex: 1 }}>
             <PlayerScores
@@ -141,7 +161,11 @@ export default class GameBoard extends React.Component {
           </View>
         </View>
         <View style={{ flex: 1, alignItems: 'center' }}>
-          {playerHand}
+          <PlayerHand
+            cards={this.state.hands ? this.state.hands[0] : null}
+            testID="PlayerHand"
+            handleCardPress={(card) => this.handleCardPress(card)}
+          />
         </View>
       </SafeAreaView>
     );
