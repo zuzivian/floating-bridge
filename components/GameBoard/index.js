@@ -27,6 +27,7 @@ export default class GameBoard extends React.Component {
       lastWinner: 0,
       trick: [],
       tricks: [],
+      trump_suit: 4,
     };
   }
 
@@ -83,10 +84,11 @@ export default class GameBoard extends React.Component {
     let hand = this.state.hands[player];
     if (!hand.length) return;
 
-    let legalMoves = hand.filter(card => {
-      return this.gameUtils.isMoveLegal(card, this.state.trick, hand);
-    });
-    this.playCard(this.cardUtils.selectRandom(legalMoves));
+    // let legalMoves = hand.filter(card => {
+    //   return this.gameUtils.isMoveLegal(card, this.state.trick, hand);
+    // });
+    // this.playCard(this.cardUtils.selectRandom(legalMoves));
+    this.playCard(this.cardUtils.selectBest(hand, this.state.trick, this.state.tricks, this.state.trump_suit));
   }
 
   playCard(card) {
